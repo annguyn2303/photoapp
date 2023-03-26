@@ -1,16 +1,25 @@
 package com.example.photoapp;
 
 import android.content.Context;
+import android.os.AsyncTask;
+import android.widget.GridView;
+
+import com.google.gson.Gson;
 
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.lang.reflect.Type;
+import java.net.HttpURLConnection;
+import java.net.URL;
 import java.util.ArrayList;
 
-public class PhotoData {
+public class ArticleData extends AsyncTask<String, String, String> {
     /*public static ArrayList<Photo> generatePhotoData(){
         ArrayList<Photo> photos = new ArrayList<>();
         photos.add(new Photo(0, "https://product.hstatic.net/200000325223/product/4777_8a54f00cc40cb99e68c691b9829bf233_022fea4372ab447e98d66ba75702389e_dc05f8afc4d24af18cb2b8d747939422_master.jpg", "Pineapple", "Đây là quả dứa"));
@@ -37,13 +46,15 @@ public class PhotoData {
     }*/
 
     private static Context context;
+    private GridView gridView;
+    public static ArticleList data;
 
-    public static void init(Context context) {
-        PhotoData.context = context;
+    /*public static void init(Context context) {
+        ArticleData.context = context;
     }
 
-    public static ArrayList<Photo> getPhotos() {
-        ArrayList<Photo> photos = new ArrayList<>();
+    public static ArrayList<Article> getPhotos() {
+        ArrayList<Article> articles = new ArrayList<>();
 
         try {
             String jsonString = loadJSONFromAsset("Photodata.json");
@@ -54,14 +65,14 @@ public class PhotoData {
                 String source = jsonObject.getString("source_photo");
                 String title = jsonObject.getString("title");
                 String description = jsonObject.getString("description");
-                photos.add(new Photo(id, source, title, description));
+                articles.add(new Article(id, source, title, description));
             }
 
         } catch (JSONException | IOException e) {
             e.printStackTrace();
         }
 
-        return photos;
+        return articles;
     }
 
     private static String loadJSONFromAsset(String fileName) throws IOException {
@@ -74,8 +85,8 @@ public class PhotoData {
         jsonString = new String(buffer, "UTF-8");
         return jsonString;
     }
-    public static Photo getPhotoById(int id) {
-        Photo photo = null;
+    public static Article getPhotoById(int id) {
+        Article article = null;
 
         try {
             String jsonString = loadJSONFromAsset("Photodata.json");
@@ -89,7 +100,7 @@ public class PhotoData {
                     String source = jsonObject.getString("source_photo");
                     String title = jsonObject.getString("title");
                     String description = jsonObject.getString("description");
-                    photo = new Photo(id, source, title, description);
+                    article = new Article(id, source, title, description);
                     break;
                 }
             }
@@ -98,6 +109,58 @@ public class PhotoData {
             e.printStackTrace();
         }
 
-        return photo;
+        return article;
+    }*/
+    public ArticleData(Context context, GridView gridView){
+        this.gridView = gridView;
+        this.context = context;
+    }
+
+    public static Article getPhotoFromId(int id){
+        for (int i = 0; i < data.getArticles().size(); i++){
+            if (data.getArticles().get(i).getArticle_id() == id){
+                return data.getArticles().get(i);
+            }
+        }
+        return null;
+    }
+    @Override
+    protected String doInBackground(String... strings) {
+        HttpURLConnection connection = null;
+        BufferedReader reader = null;
+        try {
+            URL url = new URL("https://raw.githubusercontent.com/thanhdnh/json/main/products.json");
+            connection = (HttpURLConnection) url.openConnection();
+            connection.connect();
+            InputStream stream = connection.getInputStream();
+            reader = new BufferedReader(new InputStreamReader(stream));
+            StringBuffer buffer = new StringBuffer();
+            String line = "";
+            while ((line = reader.readLine()) != null){
+                buffer.append(line + "\n");
+            }
+            return buffer.toString();
+        }catch (Exception e){
+            e.printStackTrace();
+        }finally {
+            try {
+                if (connection != null)
+                    connection.disconnect();
+                if (reader != null)
+                    reader.close();
+            }catch (Exception e){
+                e.printStackTrace();
+            }
+        }
+        return null;
+    }
+
+    @Override
+    protected void onPostExecute(String result) {
+        super.onPostExecute(result);
+        Gson gson = new Gson();
+        data = gson.fromJson(result, (Type) ArticleList.class);
+        ArticleAdapter adapter = new ArticleAdapter(data.getArticles(), context);
+        gridView.setAdapter(adapter);
     }
 }

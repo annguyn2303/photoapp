@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".ViewPhotoActivity">
+    tools:context=".ViewArticleActivity">
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
@@ -15,6 +15,7 @@
             android:layout_width="match_parent"
             android:layout_height="500dp"
             android:id="@+id/iv_detail"
+
             />
         <TextView
             android:layout_width="match_parent"
@@ -35,6 +36,7 @@
             android:text="Description"
             android:textColor="@color/black"
             android:textStyle="italic"
+            android:justificationMode="inter_word"
             android:textSize="20dp"
             android:paddingBottom="50px"/>
 

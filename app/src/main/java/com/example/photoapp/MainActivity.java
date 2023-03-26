@@ -17,7 +17,7 @@ public class MainActivity extends AppCompatActivity {
     private AdapterView.OnItemClickListener onitemclick = new AdapterView.OnItemClickListener() {
         @Override
         public void onItemClick(AdapterView<?> adapterView, View view, int position, long l) {
-            Intent intent = new Intent(getBaseContext(), ViewPhotoActivity.class);
+            Intent intent = new Intent(getBaseContext(), ViewArticleActivity.class);
             intent.putExtra("id", gridView.getAdapter().getItemId(position));
             startActivity(intent);
         }
@@ -28,12 +28,8 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        PhotoData.init(getApplicationContext());
-        ArrayList<Photo> photos = PhotoData.getPhotos();
-
         gridView = findViewById(R.id.gridview);
-        PhotoAdapter adapter = new PhotoAdapter(photos, getApplicationContext());
-        gridView.setAdapter(adapter);
+        new ArticleData(getBaseContext(), gridView).execute();
         gridView.setOnItemClickListener(onitemclick);
     }
 }
